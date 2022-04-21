@@ -1,5 +1,178 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Col, Form, Row } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function Edit() {
-  return <div>Edit</div>;
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState(null);
+  const [required_image, setRequiredimage] = useState(null);
+  const [validationError, setValidationError] = useState({});
+
+  const changeHandler = (event) => {
+    setImage(event.target.files[0]);
+  };
+
+  const changeHandlerRequired = (event) => {
+    setRequiredimage(event.target.files[0]);
+  };
+
+  useEffect(() => {
+    fetchProduct();
+  }, []);
+
+  const fetchProduct = async () => {
+    await axios
+      .get(`http://localhost:8000/api/products/${id}`)
+      .then(({ data }) => {
+        // console.log(data.product.image);
+        // return false;
+        const { title, description, image } = data.product;
+        setTitle(title);
+        setDescription(description);
+      })
+      .catch(({ response: { data } }) => {
+        Swal.fire({
+          text: data.message,
+          icon: "error",
+        });
+      });
+  };
+
+  const updateProduct = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("image", image);
+    if (required_image !== null) {
+      formData.append("required_image", required_image);
+    }
+
+    await axios
+      .post(`http://localhost:8000/api/products/${id}`, formData)
+      .then(({ data }) => {
+        Swal.fire({
+          icon: "success",
+          text: data.message,
+        });
+        navigate("/");
+      })
+      .catch(({ response }) => {
+        if (response.status === 422) {
+          setValidationError(response.data.errors);
+        } else {
+          Swal.fire({
+            text: response.data.message,
+            icon: "error",
+          });
+        }
+      });
+  };
+
+  return (
+    <div className="container">
+      <div className="row justify-content-center">
+        <div className="col-12 col-sm-12 col-md-6">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">Update Product</h4>
+              <hr />
+              <div className="form-wrapper">
+                {Object.keys(validationError).length > 0 && (
+                  <div className="row">
+                    <div className="col-12">
+                      <div className="alert alert-danger">
+                        <ul className="mb-0">
+                          {Object.entries(validationError).map(
+                            ([key, value]) => (
+                              <li key={key}>{value}</li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <Form onSubmit={updateProduct}>
+                  <Row>
+                    <Col>
+                      <Form.Group controlId="Name">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control
+                          name="title"
+                          type="text"
+                          value={title}
+                          onChange={(event) => {
+                            setTitle(event.target.value);
+                          }}
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row className="my-3">
+                    <Col>
+                      <Form.Group controlId="description">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                          name="description"
+                          as="textarea"
+                          rows={3}
+                          value={description}
+                          onChange={(event) => {
+                            setDescription(event.target.value);
+                          }}
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Form.Group controlId="image" className="mb-3">
+                        <Form.Label>Image</Form.Label>
+                        <Form.Control
+                          type="file"
+                          name="image"
+                          onChange={changeHandler}
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Form.Group controlId="required_image" className="mb-3">
+                        <Form.Label>Required Image</Form.Label>
+                        <Form.Control
+                          type="file"
+                          name="required_image"
+                          onChange={changeHandlerRequired}
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Button
+                    variant="primary"
+                    className="mt-2"
+                    size="lg"
+                    block="block"
+                    type="submit"
+                  >
+                    Update
+                  </Button>
+                </Form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
