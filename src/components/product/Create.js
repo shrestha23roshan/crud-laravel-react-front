@@ -16,6 +16,9 @@ export default function Create() {
 
   const changeHandler = (event) => {
     setImage(event.target.files[0]);
+  };
+
+  const changeHandlerRequired = (event) => {
     setRequiredimage(event.target.files[0]);
   };
 
@@ -77,7 +80,7 @@ export default function Create() {
                   <Row>
                     <Col>
                       <Form.Group controlId="title">
-                        <Form.Label>Title</Form.Label>
+                        <Form.Label>Title *</Form.Label>
                         <Form.Control
                           type="text"
                           name="title"
@@ -120,11 +123,11 @@ export default function Create() {
                   <Row>
                     <Col>
                       <Form.Group controlId="required_image" className="mb-3">
-                        <Form.Label>Mandotory Image</Form.Label>
+                        <Form.Label>Mandotory Image *</Form.Label>
                         <Form.Control
                           name="required_image"
                           type="file"
-                          onChange={changeHandler}
+                          onChange={changeHandlerRequired}
                         />
                       </Form.Group>
                     </Col>

@@ -1,7 +1,22 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Button from "react-bootstrap/Button";
+import Swal from "sweetalert2";
 
 export default function List() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    await axios.get(`http://localhost:8000/api/products`).then(({ data }) => {
+      setProducts(data);
+    });
+  };
+
   return (
     <div className="container">
       <div className="row">
@@ -22,11 +37,12 @@ export default function List() {
                     <th>Title</th>
                     <th>Description</th>
                     <th>Image</th>
+                    <th>Mandatory Image</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* {products.length > 0 &&
+                  {products.length > 0 &&
                     products.map((row, key) => (
                       <tr key={key}>
                         <td>{row.title}</td>
@@ -34,7 +50,13 @@ export default function List() {
                         <td>
                           <img
                             width="50px"
-                            src={`http://localhost:8000/storage/product/image/${row.image}`}
+                            src={`http://localhost:8000/uploads/products/${row.image}`}
+                          />
+                        </td>
+                        <td>
+                          <img
+                            width="50px"
+                            src={`http://localhost:8000/uploads/products/${row.required_image}`}
                           />
                         </td>
                         <td>
@@ -45,14 +67,14 @@ export default function List() {
                             Edit
                           </Link>
                           <Button
-                            variant="danger"
-                            onClick={() => deleteProduct(row.id)}
+                          // variant="danger"
+                          // onClick={() => deleteProduct(row.id)}
                           >
                             Delete
                           </Button>
                         </td>
                       </tr>
-                    ))} */}
+                    ))}
                 </tbody>
               </table>
             </div>

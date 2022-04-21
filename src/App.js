@@ -3,6 +3,7 @@ import { Col, Container, Navbar, Row } from "react-bootstrap";
 import { Link, Route, Routes } from "react-router-dom";
 import ProductList from "./components/product/List";
 import CreateProduct from "./components/product/Create";
+import EditProduct from "./components/product/Edit";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
           <Col md={12}>
             <Routes>
               <Route path="/product/create" element={<CreateProduct />} />
-              {/* <Route path="/product/edit/:id" element={<EditProduct />} /> */}
+              <Route path="/product/edit/:id" element={<EditProduct />} />
               <Route exact path="/" element={<ProductList />} />
             </Routes>
           </Col>
